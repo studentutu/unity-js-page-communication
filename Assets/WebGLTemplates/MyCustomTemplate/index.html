@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en-us">
+   <!-- Read more about creating custom templates: https://www.patrykgalach.com/2020/04/20/unity-webgl-template/ -->
+
+   <head>
+      <meta charset="utf-8" />
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+      <title>Custom template | %UNITY_WEB_NAME%</title>
+
+      <link rel="stylesheet" href="/Template/style.css" />
+
+      <script src="%UNITY_WEBGL_LOADER_URL%"></script>
+   </head>
+
+   <body>
+      <h2>Custom Unity Template</h2>
+
+      <!-- Unity Container -->
+      <div class="webgl-content">
+         <div
+            class="centered"
+            style="width: %UNITY_WIDTH%px; height: %UNITY_HEIGHT%px;"
+         >
+            <!-- Unity WebGL will be here -->
+            <div
+               id="unity-container"
+               style="width: %UNITY_WIDTH%px; height: %UNITY_HEIGHT%px;"
+            ></div>
+
+            <!-- This is a simple progress bar -->
+            <div id="loader" class="loader">
+               <div class="progressbar">
+                  <div id="fill" class="fill" style="width: 0%;"></div>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <!-- Place for displaying a message from Unity -->
+      <div class="centered">
+         <h2>Message from Unity</h2>
+
+         <p id="lblMessage">...</p>
+      </div>
+
+      <!-- Message form for sending stuff to Unity -->
+      <div class="message-form centered">
+         <h2>Message for Unity</h2>
+
+         <input
+            type="text"
+            name="txtMessage"
+            id="txtMessage"
+            placeholder="Enter message..."
+         />
+         <button onclick="sendMessageToUnity()">Send</button>
+      </div>
+
+      <script>
+         // Custom progressbar function
+         function customProgress(unityInstance, progress) {
+            // Change fill of the progress bar
+            const fill = document.getElementById("fill");
+            fill.style.width = progress * 100 + "%";
+
+            // If loaded, remove loader
+            if (progress === 1) {
+               const loader = document.getElementById("loader");
+               loader.remove();
+            }
+         }
+      </script>
+      <script>
+         // Unity Initialization
+         var unityInstance = UnityLoader.instantiate(
+            "unity-container",
+            "%UNITY_WEBGL_BUILD_URL%",
+            { onProgress: customProgress }
+         );
+      </script>
+      <script>
+         // Function which receives a message from Unity
+         function receiveMessageFromUnity(txt) {
+            // Get element to assign the message
+            const lblMessage = document.getElementById("lblMessage");
+
+            // Assign received from Unity message
+            lblMessage.innerText = txt;
+         }
+
+         // Function which sends the message to Unity
+         function sendMessageToUnity() {
+            // Get the input field
+            const txtMessage = document.getElementById("txtMessage");
+            // Get the message
+            const message = txtMessage.value;
+            // Clear the input field
+            txtMessage.value = "";
+
+            // Send message to the Unity scene
+            // Params: "Target object in the scene", "Function name", "Parameters"
+            unityInstance.SendMessage(
+               "[Bridge]",
+               "ReceiveMessageFromPage",
+               message
+            );
+         }
+      </script>
+
+      <h3>Example made by</h3>
+      <p><a href="https://patrykgalach.com">Patryk Galach - Dev Blog</a></p>
+   </body>
+</html>
